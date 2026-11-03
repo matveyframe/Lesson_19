@@ -1,0 +1,68 @@
+- name: task3
+  hosts: all
+  become: true
+
+
+  tasks:
+    - name: user demoapp
+      ansible.builtin.user:
+        name: demoapp
+        shell: /usr/sbin/nologin
+        password: '!'
+        state: present
+
+    - name: mkdir /opt/demo_app
+      ansible.builtin.file:
+        path: /opt/demo_app
+        state: directory
+        owner: demoapp
+        group: demoapp
+        mode: '0755'
+
+
+    - name: user www-data to group demoapp
+      ansible.builtin.user:
+        name: www-data
+        groups: demoapp
+        append: true
+
+
+    - name: cp index.html
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: /opt/demo_app/index.html
+        owner: demoapp
+        group: demoapp
+        mode: '0644'
+
+
+    - name: cp demo-app.service
+      ansible.builtin.copy:
+        src: files/demo-app.service
+        dest: /etc/systemd/system/demo-app.service
+        owner: root
+        group: root
+        mode: '0644'
+      notify: reload systemd
+
+    - name: daemon reload
+      ansible.builtin.meta: flush_handlers
+
+
+    - name: start demo-app
+      ansible.builtin.systemd:
+        name: demo-app.service
+        enabled: true
+        state: started
+
+
+    - name: checker status
+      ansible.builtin.uri:
+        url: http://localhost:8080
+        return_content: true
+
+
+  handlers:
+    - name: reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true

@@ -1,0 +1,31 @@
+- name: task 1
+  hosts: all
+  become: true
+
+
+  tasks:
+    - name: Install tree
+      ansible.builtin.apt:
+        name: tree
+        state: latest
+        update_cache: true
+
+    - name: Install jq
+      ansible.builtin.apt:
+        name: jq
+        state: latest
+        update_cache: true
+
+
+    - name: mkdir /opt/app/config
+      ansible.builtin.file:
+        path: /opt/app/config
+        state: directory
+        mode: '0755'
+
+
+    - name: cp /home/matvey/home_works/lesson_19/app.conf to /opt/app/config/app.conf
+      ansible.builtin.copy:
+        src: /home/matvey/home_works/lesson_19/app.conf
+        dest: /opt/app/config/app.conf
+        mode: '0644'

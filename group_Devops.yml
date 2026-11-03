@@ -1,0 +1,37 @@
+ - name: task2
+   hosts: all
+   become: true
+
+
+   tasks:
+     - name: group devops
+       ansible.builtin.group:
+         name: devops
+         state: present
+
+
+     - name: user ecom
+       ansible.builtin.user:
+         name: ecom
+         shell: /bin/bash
+         home: /home/ecom
+         group: devops
+         state: present
+
+
+     - name: ssh.pub
+       ansible.posix.authorized_key:
+         user: ecom
+         state: present
+         key: "{{  lookup('file', 'files/ecom_key.pub')  }}"
+         path: /home/ecom/.ssh/authorized_keys
+         manage_dir: true
+
+
+     - name: 0600 to authorized_keys
+       ansible.builtin.file:
+         path: /home/ecom/.ssh/authorized_keys
+         owner: ecom
+         group: devops
+         mode: '0600'
+         state: file
