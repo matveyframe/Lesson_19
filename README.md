@@ -121,7 +121,7 @@
         state: directory
         owner: demoapp
         group: demoapp
-        mode: '0755'
+        mode: '0775'
 
 
     - name: user www-data to group demoapp
